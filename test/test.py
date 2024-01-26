@@ -1,8 +1,9 @@
 import unittest
 import json
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from flask import Flask, jsonify
-from app.Errores_HTTP import *
+from datetime import datetime, timezone, timedelta
+from app.errores_http import *
 
 class TestClass(unittest.TestCase):
 
@@ -58,6 +59,16 @@ class TestClass(unittest.TestCase):
         with self.app.test_request_context('/'):
             response = internal_server_error("test error")
         self.assertEqual(response[1], 500)
+
+    
+    @patch("app.errores_http.datetime")
+    def test_get_colombia_timestamp(self, mock_datetime):
+        fixed_datetime = datetime(2022, 1, 1, 12, 0, 0)
+        mock_datetime.now.return_value = fixed_datetime
+        result = get_colombia_timestamp()
+        expected_result = fixed_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        self.assertEqual(result, expected_result)
+
 
 if __name__ == '__main__':
     unittest.main()
